@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -150,7 +150,8 @@
 
         .btn-run { background-color: var(--accent-green); border-color: var(--accent-green); color: #1a4331; font-weight: 600; }
         .btn-save { background-color: var(--accent-blue); border-color: var(--accent-blue); color: #1e3a5f; font-weight: 600; }
-        .btn-run:hover, .btn-save:hover { filter: brightness(0.95); }
+        .btn-install { background-color: #3b82f6; border-color: #3b82f6; color: #ffffff; font-weight: 600; display: none; }
+        .btn-run:hover, .btn-save:hover, .btn-install:hover { filter: brightness(0.95); }
 
         /* Workspace Views */
         .view-container {
@@ -258,6 +259,7 @@
         </div>
         
         <div class="tools-right">
+            <button id="pwaInstallBtn" class="btn-install">Install App</button>
             <select id="exportFormat">
                 <option value="txt">.txt</option>
                 <option value="pdf">.pdf</option>
@@ -293,9 +295,11 @@
     <script>
         const richEditor = document.getElementById('richEditor');
         const codeEditor = document.getElementById('codeEditor');
+        const pwaInstallBtn = document.getElementById('pwaInstallBtn');
         let currentMode = 'notes'; 
+        let deferredPrompt = null;
 
-        // PWA Service Worker Registration
+        // Register Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').catch(err => {
@@ -303,6 +307,23 @@
                 });
             });
         }
+
+        // Capture PWA Install Prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            pwaInstallBtn.style.display = 'block';
+        });
+
+        pwaInstallBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                pwaInstallBtn.style.display = 'none';
+            }
+            deferredPrompt = null;
+        });
 
         function switchTab(mode) {
             currentMode = mode;
