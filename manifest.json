@@ -12,11 +12,6 @@
       "type": "image/png",
       "purpose": "any maskable"
     },
-    {
-      "src": "https//cdn-icons-png.flaticon.com/512/1157/1157018.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+   
   ]
 }
