@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OmniTool | Minimal</title>
     
-    <!-- PWA Manifest & Theme -->
+    <!-- PWA Manifest (Relative path for GitHub Pages) -->
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#3b82f6">
 
@@ -299,12 +299,12 @@
         let currentMode = 'notes'; 
         let deferredPrompt = null;
 
-        // Register Service Worker
+        // Register Service Worker with relative path
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(err => {
-                    console.log('SW Registration Failed: ', err);
-                });
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW Registered:', reg.scope))
+                    .catch(err => console.error('SW Registration Error:', err));
             });
         }
 
