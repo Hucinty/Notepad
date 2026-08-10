@@ -1,17 +1,17 @@
 {
-  "name": "OmniTool Minimal",
+  "name": "OmniTool Minimal App",
   "short_name": "OmniTool",
-  "start_url": "/",
+  "description": "Minimalist document editor and code workspace.",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#fafbfc",
   "theme_color": "#3b82f6",
   "icons": [
     {
-      "src": "https//cdn-icons-png.flaticon.com/512/1157/1157018.png",
-      "sizes": "192x192 512512",
+      "src": "https://cdn-icons-png.flaticon.com/512/1157/1157018.png",
+      "sizes": "192x192 512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-   
+    }
   ]
 }
