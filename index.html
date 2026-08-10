@@ -1,0 +1,400 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniTool | Minimal</title>
+    
+    <!-- PWA Manifest & Theme -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#3b82f6">
+
+    <!-- Library for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+        :root {
+            /* Minimal Pastel Palette */
+            --bg: #f8f9fa;
+            --text: #4a4a4a;
+            --toolbar: rgba(255, 255, 255, 0.85);
+            --border: #e2e8f0;
+            --btn-hover: #f1f5f9;
+            --editor-bg: #ffffff;
+            
+            /* Pastel Accents */
+            --accent-blue: #a2d2ff;
+            --accent-green: #b7e4c7;
+        }
+
+        /* Dotted Theme (Default) */
+        body.theme-dotted {
+            --bg: #fafbfc;
+            --editor-bg: transparent;
+            background-color: var(--bg);
+            background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+        }
+
+        /* Light Theme */
+        body.theme-light {
+            background-color: var(--bg);
+        }
+
+        /* Dark Theme */
+        body.theme-dark {
+            --bg: #1e1e24;
+            --text: #d4d4d4;
+            --toolbar: rgba(43, 43, 54, 0.95);
+            --border: #3f3f4a;
+            --btn-hover: #3f3f4a;
+            --editor-bg: #1e1e24;
+            --accent-blue: #4a7c99; 
+            --accent-green: #597d65;
+            background-color: var(--bg);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        /* Responsive Header */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: var(--toolbar);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            gap: 12px;
+        }
+
+        .logo {
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+
+        .tab-container {
+            display: flex;
+            background-color: var(--border);
+            border-radius: 20px;
+            padding: 4px;
+            margin: 0 auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--text);
+            border: none;
+            padding: 6px 14px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background-color: var(--editor-bg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* Responsive Toolbar */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: transparent;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tools-left, .tools-right {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        button, select {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background-color: var(--editor-bg);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        button:hover, select:hover {
+            background-color: var(--btn-hover);
+        }
+
+        .btn-run { background-color: var(--accent-green); border-color: var(--accent-green); color: #1a4331; font-weight: 600; }
+        .btn-save { background-color: var(--accent-blue); border-color: var(--accent-blue); color: #1e3a5f; font-weight: 600; }
+        .btn-run:hover, .btn-save:hover { filter: brightness(0.95); }
+
+        /* Workspace Views */
+        .view-container {
+            display: none;
+            flex: 1;
+            overflow: hidden;
+            flex-direction: column;
+            padding: 0 16px 16px 16px;
+        }
+        .view-container.active { display: flex; }
+
+        .editor-card {
+            flex: 1;
+            background-color: var(--editor-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            display: flex;
+            overflow: hidden;
+        }
+
+        #richEditor {
+            flex: 1;
+            width: 100%;
+            padding: 20px;
+            outline: none;
+            line-height: 1.7;
+            font-size: 16px;
+            overflow-y: auto;
+        }
+        #richEditor:empty::before { content: "Start typing your minimal notes..."; color: #9ca3af; }
+
+        #codeEditor {
+            flex: 1;
+            background-color: transparent;
+            color: var(--text);
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            padding: 20px;
+            border: none;
+            resize: none;
+            outline: none;
+            white-space: pre;
+            tab-size: 4;
+            line-height: 1.6;
+        }
+        
+        #previewWindow {
+            flex: 1;
+            border: none;
+            border-left: 1px solid var(--border);
+            background-color: #ffffff;
+            display: none;
+        }
+        .show-preview #previewWindow { display: block; }
+
+        .statusbar {
+            padding: 10px 20px;
+            font-size: 12px;
+            color: #888;
+            display: flex;
+            justify-content: space-between;
+            background: transparent;
+        }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 600px) {
+            .tools-right { width: 100%; justify-content: space-between; }
+            #exportFormat { flex: 1; }
+            .btn-save { flex: 1; }
+            #previewWindow { border-left: none; border-top: 1px solid var(--border); }
+            .code-workspace { flex-direction: column; }
+        }
+    </style>
+</head>
+<body class="theme-dotted" id="appBody">
+
+    <!-- Fixed Header -->
+    <div class="header">
+        <div class="logo">OmniTool</div>
+        
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="switchTab('notes')" id="btn-tab-notes">Notepad</button>
+            <button class="tab-btn" onclick="switchTab('code')" id="btn-tab-code">Code</button>
+        </div>
+
+        <select id="themeSelect" onchange="changeTheme()" style="border:none; background:transparent; font-weight:500; padding:4px;">
+            <option value="theme-dotted">Dotted</option>
+            <option value="theme-light">Light</option>
+            <option value="theme-dark">Dark</option>
+        </select>
+    </div>
+
+    <!-- Fixed Toolbar -->
+    <div class="toolbar">
+        <div class="tools-left" id="format-tools">
+            <button onclick="formatText('bold')"><b>B</b></button>
+            <button onclick="formatText('italic')"><i>I</i></button>
+            <button onclick="formatText('underline')"><u>U</u></button>
+            <button onclick="formatText('insertUnorderedList')">List</button>
+        </div>
+
+        <div class="tools-left" id="code-tools" style="display: none;">
+            <button class="btn-run" onclick="runCode()">▶ Run Preview</button>
+        </div>
+        
+        <div class="tools-right">
+            <select id="exportFormat">
+                <option value="txt">.txt</option>
+                <option value="pdf">.pdf</option>
+                <option value="docx">.doc</option>
+                <option value="html">.html</option>
+                <option value="js">.js</option>
+                <option value="py">.py</option>
+            </select>
+            <button class="btn-save" onclick="exportFile()">Save</button>
+        </div>
+    </div>
+
+    <!-- View: Notepad -->
+    <div class="view-container active" id="view-notes">
+        <div class="editor-card">
+            <div id="richEditor" contenteditable="true" spellcheck="false"></div>
+        </div>
+    </div>
+
+    <!-- View: Code -->
+    <div class="view-container" id="view-code">
+        <div class="editor-card code-workspace" id="codeWorkspace">
+            <textarea id="codeEditor" spellcheck="false" placeholder="Write code here..."></textarea>
+            <iframe id="previewWindow"></iframe>
+        </div>
+    </div>
+
+    <div class="statusbar">
+        <span id="wordCount">0 words | 0 chars</span>
+        <span id="modeStatus">Notepad Mode</span>
+    </div>
+
+    <script>
+        const richEditor = document.getElementById('richEditor');
+        const codeEditor = document.getElementById('codeEditor');
+        let currentMode = 'notes'; 
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(err => {
+                    console.log('SW Registration Failed: ', err);
+                });
+            });
+        }
+
+        function switchTab(mode) {
+            currentMode = mode;
+            document.getElementById('view-notes').classList.toggle('active', mode === 'notes');
+            document.getElementById('view-code').classList.toggle('active', mode === 'code');
+            document.getElementById('btn-tab-notes').classList.toggle('active', mode === 'notes');
+            document.getElementById('btn-tab-code').classList.toggle('active', mode === 'code');
+            document.getElementById('format-tools').style.display = (mode === 'notes') ? 'flex' : 'none';
+            document.getElementById('code-tools').style.display = (mode === 'code') ? 'flex' : 'none';
+            document.getElementById('modeStatus').innerText = mode === 'notes' ? 'Notepad Mode' : 'Code Mode';
+            updateCounts();
+        }
+
+        function formatText(command) {
+            document.execCommand(command, false, null);
+            richEditor.focus();
+            updateCounts();
+        }
+
+        codeEditor.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+        });
+
+        function runCode() {
+            const code = codeEditor.value;
+            document.getElementById('codeWorkspace').classList.add('show-preview');
+            const doc = document.getElementById('previewWindow').contentWindow.document;
+            doc.open();
+            doc.write(code);
+            doc.close();
+        }
+
+        function changeTheme() {
+            document.getElementById('appBody').className = document.getElementById('themeSelect').value;
+        }
+
+        function updateCounts() {
+            const text = currentMode === 'notes' ? richEditor.innerText.trim() : codeEditor.value.trim();
+            const words = text === '' ? 0 : text.split(/\s+/).length;
+            document.getElementById('wordCount').innerText = `${words} words | ${text.length} chars`;
+        }
+
+        richEditor.addEventListener('input', updateCounts);
+        codeEditor.addEventListener('input', updateCounts);
+
+        function exportFile() {
+            const format = document.getElementById('exportFormat').value;
+            const filename = prompt("Enter file name (without extension):", "OmniDocument");
+            if (!filename) return;
+
+            let plainTextContent = currentMode === 'notes' ? richEditor.innerText : codeEditor.value;
+            let htmlContent = richEditor.innerHTML;
+            
+            if (currentMode === 'notes' && format === 'pdf') {
+                const opt = { margin: 1, filename: `${filename}.pdf`, html2canvas: { scale: 2, useCORS: true } };
+                html2pdf().set(opt).from(richEditor).save();
+                return;
+            }
+
+            let content = '';
+            let mimeType = 'text/plain';
+
+            if (format === 'html') {
+                content = currentMode === 'notes' ? `<!DOCTYPE html><html><body>${htmlContent}</body></html>` : plainTextContent;
+                mimeType = 'text/html';
+            } else if (format === 'docx') {
+                content = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export</title></head><body>" + htmlContent + "</body></html>";
+                mimeType = 'application/msword';
+            } else if (format === 'js') {
+                content = plainTextContent;
+                mimeType = 'application/javascript';
+            } else {
+                content = plainTextContent;
+            }
+
+            const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+            const blob = new Blob([bom, content], { type: mimeType + ";charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
